@@ -12,7 +12,14 @@ const config: Config = {
       'tablet': '480px',
       'ultrawide': '1400px',
     },
-    extend: {},
+    extend: {
+      colors: {
+        'borderWhite': 'rgba(255, 255, 255, 0.1)',
+      },
+      gridTemplateColumns: {
+        'clientLayout': '1fr 20fr',
+      }
+    },
   },
   plugins: [],
 };

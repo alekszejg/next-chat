@@ -1,0 +1,8 @@
+{
+    "features": {
+        "friends": "/friends",
+        "chats": "/chat",
+        "calls": "/call",
+        "settings": "/settings"
+    }
+}

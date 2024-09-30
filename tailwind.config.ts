@@ -13,6 +13,9 @@ const config: Config = {
       'ultrawide': '1400px',
     },
     extend: {
+      padding: {
+        'commonPadding': '1.5rem',
+      },
       colors: {
         'borderWhite': 'rgba(255, 255, 255, 0.1)',
       },

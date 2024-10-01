@@ -1,8 +1,17 @@
+"use client"
+
 import Link from "next/link";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import toast from "react-hot-toast";
 import Button from "../_layoutComponents/button";
 import SignInWithGoogleButton from "./signInGoogleButton";
 import InputField from "./inputField";
 import { CircleUserRound, Mail, Repeat, Lock} from "lucide-react";
+
+type FormInputs = {email: string; password: string; repeatEmail?: string; name: string};
+
 
 export default function AuthPage({action}: {action: "register" | "login"}) {
     const styling = {
@@ -20,18 +29,39 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
             input: "h-[2rem] px-1.5",
             error: ""
         }
-    } 
+    };
+
+    const [isLoading, setIsLoading] = useState(false);
+    const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>({mode: 'onChange' });
+
+    const onSubmit: SubmitHandler<FormInputs> = async (data) => {
+        const { name, email, repeatEmail, password } = data;
+
+        if (action === "login") {
+            const response = await signIn('credentials', {redirect: false, email, password});
+            if (response?.error){
+                console.error("Login error: ", response.error);
+                toast.error("Login error");
+            } else {
+                console.log("Login successful")
+            }
+        }
+    }
     
     return (
-        <form className={styling.form.form}>
-            
+        <form onSubmit={handleSubmit(onSubmit)} className={styling.form.form}>
+        
             {action === "register" &&
             <div className={styling.form.contentWrapper}>
                 <h2 className={styling.form.header}>Register</h2>
-                <InputField placeholder="Name:" type="text" Icon={CircleUserRound} styling={styling.input} />
-                <InputField placeholder="Enter email:" type="email" Icon={Mail} styling={styling.input} />
-                <InputField placeholder="Repeat email:" type="email" Icon={Repeat} styling={styling.input} /> 
-                <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} />
+                <InputField placeholder="Name:" type="text" Icon={CircleUserRound} styling={styling.input} 
+                {...register('name')}/>
+                <InputField placeholder="Enter email:" type="email" Icon={Mail} styling={styling.input} 
+                {...register('email', {required: true})}/>
+                <InputField placeholder="Repeat email:" type="email" Icon={Repeat} styling={styling.input} 
+                {...register('repeatEmail', {required: true})}/> 
+                <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 
+                {...register('password', {required: true})}/>
                 <Button text="Submit" className={styling.form.button} isLoading={false} /> 
                 <p className={styling.form.alreadyRegisteredText}>Already have an account? 
                     <Link className={styling.form.loginLink} href="/login">Login</Link>
@@ -43,9 +73,12 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
             {action === "login" &&
             <div className={styling.form.contentWrapper}>
                 <h2 className={styling.form.header}>Login</h2>
-                <InputField placeholder="Enter email:" type="email" Icon={Mail} styling={styling.input} />
-                <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} />
-                <Button text="Submit" className={styling.form.button} isLoading={false} />
+                <InputField placeholder="Enter email:" type="email" Icon={Mail} styling={styling.input} 
+                {...register('email', {required: true})}
+                />
+                <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 
+                {...register('password', {required: true})}/>
+                <Button text="Submit" className={styling.form.button} isLoading={isLoading} disabled={isLoading} />
             </div>
             }
         </form>

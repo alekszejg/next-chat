@@ -2,7 +2,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import type { User, Session, Profile, Account } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import type { FormInputs } from "@/app/(auth)/login/page";
 
 const users: User[] = [
   {
@@ -29,11 +28,12 @@ export const authOptions = {
         
         async authorize(credentials): Promise<User | null> {
             if (!credentials?.email || !credentials?.password) return null;
-            const { email, password } = credentials as FormInputs;
+            /*const { email, password } = credentials as FormInputs;
             const currentUser = users.find(user => user.email === credentials.email);
             if (currentUser && currentUser.email === email) {
               return { id: currentUser.id, username: currentUser.username, email: currentUser.email, password: currentUser.password, role: currentUser.role, avatar: currentUser.avatar };
-            }
+            }*/
+            console.log(credentials);
             return null;
         }
       })

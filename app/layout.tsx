@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import PageLayout from "./_layoutComponents/pageLayout";
+import NextSessionProvider from "@/app/_layoutComponents/sessionProvider";
+import PageLayout from "@/app/_layoutComponents/pageLayout";
 import "@/index.css";
 
 
@@ -26,12 +27,14 @@ export default function RootLayout(props: Readonly<{children: React.ReactNode;}>
   }
 
   return (
-    <html lang="en" className={styling.html}>
-      <body className={styling.body}>
-        <PageLayout>
-          {props.children}
-        </PageLayout>
-      </body>
-    </html>
+    <NextSessionProvider>
+      <html lang="en" className={styling.html}>
+        <body className={styling.body}>
+          <PageLayout>
+            {props.children}
+          </PageLayout>
+        </body>
+      </html>
+    </NextSessionProvider>
   );
 }

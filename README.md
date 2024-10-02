@@ -1,18 +1,18 @@
 *Inpired by this video from Russian creator: https://youtu.be/BwcznghxxHk?si=dKYFBOzIPwtE7SWY*
 
-**Aim and Motivation**
+**AIM AND MOTIVATION**
 1) Get closer to building more real-life related projects and services
 2) Train muscle memory and overall speed of completing React/NextJS projects. Knowing the design beforehand saves a lot of time and headache, when all that's left to do is look at design choices, program the design with some adjustments of my own taste and focus more on the logic 
 3) It is a good and interesting challenge for me, since obviously chat apps are extemely popular and the most important is I want my questions to be answered. Such as how do developers come up with unusual shapes for messages, do they use actual plain CSS or finished solutions? When to use HTTP requests and when to use sockets for interactions between users? How is chat and user data typically stored in such projects? No BS, it's a lot of overwhelming questions I have in my head, but only by doing something that I have never done before and at current stage can't imagine doing, only this would allow me to achieve significant improvements in the field, making all the things I previously learnt very simple compared to new information
 4) Observe how much more experienced person makes various decisions and explains their thinking processes, try to understand what is going on in their head, their priorities and strategies. Since I don't have a programming job yet, this is one of very few possibilities that I can do currently to get a lot better at what I do, by combining typical "tutorial watching" with building something by myself and analysing the decisions done by tutorial creator. Nobody is perfect and only by doing and analyzing I could spot mistakes and areas for improvement and form my own way of doing things  
 5) Better understanding of React and NextJS App Router. It is a good and demanded skill, especially after recent change from Pages to App Router with addition of Server Actions and replacement of previous functions related to props and params. Doing different projects and observing what community has to teach you and their observations of new React and Next.js features is much more valuable than reading documentation, which doesn't show practical reasoning behind those features and their applications
 
-**What have I learnt**
+**WHAT HAVE I LEARNT?**
 - Existence of react-hook-form and react-form-toast libraries when doing authentication througn registration and login forms. While I am skeptical about adding dependencies for something I could more or less easily program myself, I do like the idea of deligating extremely repetitive code to such libraries to do it much quicker and clearer
 - Linking similar fetch() requests into same file using OOP. While I am not new to concept of OOP, I found it to be extemely short and clear to create and export istance of a class with all related requests, instead of writing these functions as separate API routes as adviced by NextJS. It also attempts to reduce number of API routes like Server Actions do, but isn't limited to POST requests and helps to separate the internal logic from logic of API routes meant to be accessed externally
 
 
-**Big part of code here copies the video. What did I do differently?** 
+**BIG PART OF CODE COPIES THE CODE IN INSPIRATION VIDEO. BUT WHAT HAVE I DONE DIFFERENTLY?** 
 1) Simplified styling. In the video he creates a lot of small separate SCSS files for components with CSS properties along with Tailwind's @apply directive. While it's commonly used, it is even discoouraged by Tailwind's maker himself.
 - Instead, I have a single "index.css" file to define @font-face directives
 - Use that separate "index.css" file to apply font-side, font-family and other general CSS properties or Tailwind classes to main HTML elements like <html> and <body>

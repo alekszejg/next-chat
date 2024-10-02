@@ -9,6 +9,7 @@ import Button from "../_layoutComponents/button";
 import SignInWithGoogleButton from "./signInGoogleButton";
 import InputField from "./inputField";
 import { CircleUserRound, Mail, Repeat, Lock} from "lucide-react";
+import { redirect } from "next/dist/server/api-utils";
 
 type FormInputs = {email: string; password: string; repeatEmail?: string; name: string};
 
@@ -45,6 +46,8 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
             } else {
                 console.log("Login successful")
             }
+        } else if (action === "register") {
+            const response = await signIn('credentials', {redirect: false, name, email, repeatEmail, password})
         }
     }
     
@@ -56,9 +59,9 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
                 <h2 className={styling.form.header}>Register</h2>
                 <InputField placeholder="Name:" type="text" Icon={CircleUserRound} styling={styling.input} 
                 {...register('name')}/>
-                <InputField placeholder="Enter email:" type="email" Icon={Mail} styling={styling.input} 
+                <InputField placeholder="Enter email:" type="text" Icon={Mail} styling={styling.input} 
                 {...register('email', {required: true})}/>
-                <InputField placeholder="Repeat email:" type="email" Icon={Repeat} styling={styling.input} 
+                <InputField placeholder="Repeat email:" type="text" Icon={Repeat} styling={styling.input} 
                 {...register('repeatEmail', {required: true})}/> 
                 <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 
                 {...register('password', {required: true})}/>
@@ -73,7 +76,7 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
             {action === "login" &&
             <div className={styling.form.contentWrapper}>
                 <h2 className={styling.form.header}>Login</h2>
-                <InputField placeholder="Enter email:" type="email" Icon={Mail} styling={styling.input} 
+                <InputField placeholder="Enter email:" type="text" Icon={Mail} styling={styling.input} 
                 {...register('email', {required: true})}
                 />
                 <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 

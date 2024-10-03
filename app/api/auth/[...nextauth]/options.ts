@@ -2,7 +2,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import type { User, Session, Profile, Account } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import { $fetch } from "../../user/api.fetchUser";
+import { $fetch } from "@/app/api/user/api.fetchUser";
 
 
 export const authOptions = {

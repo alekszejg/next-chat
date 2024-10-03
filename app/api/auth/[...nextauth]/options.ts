@@ -1,8 +1,9 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import type { User, Session, Profile, Account } from "next-auth";
+import type { User, Session, SignInParams } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import { $fetch } from "@/app/api/user/api.fetchUser";
+
 
 
 export const authOptions = {
@@ -20,9 +21,8 @@ export const authOptions = {
         
         async authorize(credentials): Promise<User | null> {  
           if (!credentials?.email || !credentials?.password) return null;
-         
-          console.log("received credentials", credentials)
-          
+      
+
           // Duduce form type. Registration might require post request into DB
           let formType: "register" | "login" | undefined;
           
@@ -63,8 +63,11 @@ export const authOptions = {
 
     callbacks: {
       
-      async signIn({ account, profile }: {account: Account, profile: Profile}) {
-        if (!profile.email) {
+
+      async signIn(params: SignInParams) {
+        const { user, account, profile, email } = params;
+        
+        if (!profile?.email) {
           throw new Error("No profile...");
         }
         console.log("account info here:\n\n", account)

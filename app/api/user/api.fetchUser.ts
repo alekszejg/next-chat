@@ -13,10 +13,7 @@ type FetchArguments = {
     body?: Record<string, string>
 }
 
-type GetArguments = {
-    email: string | undefined,
-    username: string | undefined,
-};
+type GetArguments = {email?: string, username?: string};
 
 
 
@@ -58,11 +55,11 @@ class FetchClient {
     
 
     async get<T>({email, username}: GetArguments): Promise<NextResponse> {
-        let path = "";
-        if (email) {path = `/api/user?email=${email}`}
-        else if (username) {path = `api/user?username=${username}`};
-        
-        const response = await this.fetch({method: 'GET', path: path});
+        const paths = {
+            email: `/api/user?email=${email}`, 
+            username: `api/user?username=${username}`
+        };
+        const response = await this.fetch({method: 'GET', path: email ? paths.email : paths.username});
         return response;
     }
 

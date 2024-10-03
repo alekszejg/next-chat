@@ -13,7 +13,7 @@ export default function PageLayout(props: {children: React.ReactNode}) {
         <main className={styling.main}>
             <Sidebar />
             {props.children}
-            <Toaster position="top-right" />
+            <Toaster position="bottom-right" />
         </main>
     );
 }

@@ -11,7 +11,7 @@ import InputField from "./inputField";
 import { CircleUserRound, Mail, Repeat, Lock} from "lucide-react";
 import { redirect } from "next/dist/server/api-utils";
 
-type FormInputs = {email: string; password: string; repeatEmail?: string; name: string};
+type FormInputs = {email: string; password: string; repeatEmail?: string; name: string; username: string};
 
 
 export default function AuthPage({action}: {action: "register" | "login"}) {
@@ -77,7 +77,7 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
             <div className={styling.form.contentWrapper}>
                 <h2 className={styling.form.header}>Login</h2>
                 <InputField placeholder="Enter email:" type="text" Icon={Mail} styling={styling.input} 
-                {...register('email', {required: true})}
+                {...register('email')}
                 />
                 <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 
                 {...register('password', {required: true})}/>

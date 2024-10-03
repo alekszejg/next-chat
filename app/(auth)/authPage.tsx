@@ -65,7 +65,7 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
                 {...register('repeatEmail', {required: true})}/> 
                 <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 
                 {...register('password', {required: true})}/>
-                <Button text="Submit" className={styling.form.button} isLoading={false} /> 
+                <Button type="submit" text="Submit" className={styling.form.button} isLoading={false} /> 
                 <p className={styling.form.alreadyRegisteredText}>Already have an account? 
                     <Link className={styling.form.loginLink} href="/login">Login</Link>
                 </p>
@@ -81,7 +81,7 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
                 />
                 <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 
                 {...register('password', {required: true})}/>
-                <Button text="Submit" className={styling.form.button} isLoading={isLoading} disabled={isLoading} />
+                <Button type="submit" text="Submit" className={styling.form.button} isLoading={isLoading} disabled={isLoading} />
             </div>
             }
         </form>

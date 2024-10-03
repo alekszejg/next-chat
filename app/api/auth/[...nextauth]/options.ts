@@ -2,17 +2,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import type { User, Session, Profile, Account } from "next-auth";
 import type { JWT } from "next-auth/jwt";
+import { $fetch } from "../../user/api.fetchUser";
 
-const users: User[] = [
-  {
-    id: "1",
-    username: "test",
-    password: "12345",
-    email: "alexeyguljajev@gmail.com",
-    role: "user",
-    avatar: "",
-  },
-];
 
 export const authOptions = {
     providers: [
@@ -22,18 +13,28 @@ export const authOptions = {
       }),
       CredentialsProvider({
         credentials: {
-          email: {label: "username", type: "email", required: true},
-          password: {label: "password", type: "password", required: true},
+          email: {type: "text", required: true},
+          password: {type: "password", required: true},
+          name: {type: "text"},
+          username: {type: "text"}
         },
         
-        async authorize(credentials): Promise<User | null> {
-            if (!credentials?.email || !credentials?.password) return null;
+        async authorize(credentials): Promise<User | null> {  
+          if (!credentials?.email || !credentials?.password) return null;
+            const { email, password } = credentials;
+            
+            // check if action was login
+            if (credentials.email) {
+              console.log("triggered the check");
+              const response = await $fetch.get({email: credentials.email, username: undefined});
+              console.log("response is...", response);
+            }
+
             /*const { email, password } = credentials as FormInputs;
             const currentUser = users.find(user => user.email === credentials.email);
             if (currentUser && currentUser.email === email) {
               return { id: currentUser.id, username: currentUser.username, email: currentUser.email, password: currentUser.password, role: currentUser.role, avatar: currentUser.avatar };
             }*/
-            console.log(credentials);
             return null;
         }
       })
@@ -49,11 +50,11 @@ export const authOptions = {
     callbacks: {
       
       async signIn({ account, profile }: {account: Account, profile: Profile}) {
-        console.log("sign in just triggered")
         if (!profile.email) {
           throw new Error("No profile...");
         }
-        console.log("sign in is supposed to work")
+        console.log("account info here:\n\n", account)
+        console.log("profile info here:\n\n", profile)
         return true; 
       },
 

@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import type { User, UserWithoutPassword, Session, Profile, Account } from "next-auth";
+import type { User, Session, Profile, Account } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import { $fetch } from "../../user/api.fetchUser";
 

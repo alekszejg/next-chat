@@ -41,17 +41,21 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
         switch (action) {
             
             case "register":
+                setIsLoading(true);    
                 const registerResponse = await signIn('credentials', {redirect: false, name, email, repeatEmail, password});
-                if (registerResponse?.error) {
-                    console.error("Registration error: ", registerResponse.error);
-                    toast.error("Registration error");
-                } else {
-                    toast.success("Registration was successful!");
-                }
+                    setIsLoading(false);
+                    if (registerResponse?.error) {
+                        console.error("Registration error: ", registerResponse.error);
+                        toast.error("Registration error");
+                    } else {
+                        toast.success("Registration was successful!");
+                    }
                 break;
 
             case "login":
+                setIsLoading(true); 
                 const loginResponse  = await signIn('credentials', {redirect: false, email, password});
+                setIsLoading(false);
                 if (loginResponse?.error){
                     console.error("Login error: ", loginResponse.error);
                     toast.error("Login error");
@@ -76,7 +80,7 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
                 {...register('repeatEmail', {required: true})}/> 
                 <InputField placeholder="Enter password:" type="password" Icon={Lock} styling={styling.input} 
                 {...register('password', {required: true})}/>
-                <Button type="submit" text="Submit" className={styling.form.button} isLoading={false} /> 
+                <Button type="submit" text="Submit" className={styling.form.button} isLoading={isLoading} disabled={isLoading} /> 
                 <p className={styling.form.alreadyRegisteredText}>Already have an account? 
                     <Link className={styling.form.loginLink} href="/login">Login</Link>
                 </p>

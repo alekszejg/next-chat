@@ -38,16 +38,27 @@ export default function AuthPage({action}: {action: "register" | "login"}) {
     const onSubmit: SubmitHandler<FormInputs> = async (data) => {
         const { name, email, repeatEmail, password } = data;
 
-        if (action === "login") {
-            const response = await signIn('credentials', {redirect: false, email, password});
-            if (response?.error){
-                console.error("Login error: ", response.error);
-                toast.error("Login error");
-            } else {
-                console.log("Login successful")
-            }
-        } else if (action === "register") {
-            const response = await signIn('credentials', {redirect: false, name, email, repeatEmail, password})
+        switch (action) {
+            
+            case "register":
+                const registerResponse = await signIn('credentials', {redirect: false, name, email, repeatEmail, password});
+                if (registerResponse?.error) {
+                    console.error("Registration error: ", registerResponse.error);
+                    toast.error("Registration error");
+                } else {
+                    toast.success("Registration was successful!");
+                }
+                break;
+
+            case "login":
+                const loginResponse  = await signIn('credentials', {redirect: false, email, password});
+                if (loginResponse?.error){
+                    console.error("Login error: ", loginResponse.error);
+                    toast.error("Login error");
+                } else {
+                    toast.success("Login was successful!");
+                }
+                break;
         }
     }
     

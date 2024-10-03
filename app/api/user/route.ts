@@ -2,9 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import ConnectPgsqlPool from '@/postgres';
 
-
 export async function GET(req: NextRequest) {
-    console.log("\n\nAccessed get route\n\n")
     const searchParams = req.nextUrl.searchParams;
     const searchByEmail = searchParams.get('email');
     const searchByUsername = searchParams.get('username');

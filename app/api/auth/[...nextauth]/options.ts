@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import type { User, Session, Profile, Account } from "next-auth";
+import type { User, UserWithoutPassword, Session, Profile, Account } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import { $fetch } from "../../user/api.fetchUser";
 
@@ -16,26 +16,40 @@ export const authOptions = {
           email: {type: "text", required: true},
           password: {type: "password", required: true},
           name: {type: "text"},
-          username: {type: "text"}
         },
         
         async authorize(credentials): Promise<User | null> {  
           if (!credentials?.email || !credentials?.password) return null;
-            const { email, password } = credentials;
-            
-            // check if action was login
-            if (credentials.email) {
-              console.log("triggered the check");
-              const response = await $fetch.get({email: credentials.email, username: undefined});
-              console.log("response is...", response);
-            }
+         
+          console.log("received credentials", credentials)
+          
+          // Duduce form type. Registration might require post request into DB
+          let formType: "register" | "login" | undefined;
+          
+          if (credentials.name) {formType = "register"}
+          else if (!credentials.name) {formType = "login"};  
+         
+          
+          if (formType === "register") {
 
-            /*const { email, password } = credentials as FormInputs;
-            const currentUser = users.find(user => user.email === credentials.email);
-            if (currentUser && currentUser.email === email) {
-              return { id: currentUser.id, username: currentUser.username, email: currentUser.email, password: currentUser.password, role: currentUser.role, avatar: currentUser.avatar };
-            }*/
-            return null;
+          }
+
+          else if (formType === "login") {
+            const response = await $fetch.get({email: credentials.email, username: undefined});
+            const data = await response.json();
+            
+            if (!response.ok) return data.error;
+            
+            if (data.exists) {
+              const userData = {id: data.id, email: data.email, username: data.username, role: data.role, avatar: data.avatar};
+              return userData;
+            } 
+            else {
+              return null;
+            }
+          }
+
+          return null;
         }
       })
     ],

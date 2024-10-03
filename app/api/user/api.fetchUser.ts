@@ -1,4 +1,5 @@
-type GetResponse = {exists: boolean, status: number} | {error: string, status: number};
+import { NextResponse } from "next/server";
+
 type PostResponse = { success: boolean; error: string};
 type PutResponse = { updated: boolean; error: string };
 type PatchResponse = { patched: boolean; error: string };
@@ -26,7 +27,7 @@ class FetchClient {
         'Content-Type': 'application/json',
     }) {}
 
-    private async fetch({method, path, isAuth = false, headers, body}: FetchArguments): Promise<Response | GetResponse> {
+    private async fetch({method, path, isAuth = false, headers, body}: FetchArguments): Promise<NextResponse> {
 
         const fullURL = process.env.API_URL + path;
         const allRequestHeaders: Record<string, string> = {...this.defaultHeaders, ...(headers || {})};
@@ -37,21 +38,26 @@ class FetchClient {
                 try {
                     const response = await fetch(fullURL, {method, headers: allRequestHeaders});
                     const data = await response.json();
-                    return data;
+                    if (!response.ok) {
+                        return NextResponse.json({error: data.error}, {status: response.status});
+                    }
+                    else {
+                        return NextResponse.json({exists: data.exists}, {status: 200});
+                    }
                 }    
                 catch {
-                    const fetchError = {error: "Error during data fetch from API"};
-                    return new Response(JSON.stringify(fetchError), {status: 500, headers: this.defaultHeaders});
+                    const fetchError = "Error during data fetch from API";
+                    return NextResponse.json({error: fetchError}, {status: 500});
                 }
 
             default:
-                const methodError = {error: "Error: unsupported HTTP method."};    
-                return new Response(JSON.stringify(methodError), {status: 405, headers: this.defaultHeaders});
+                const methodError = "Error: unsupported HTTP method.";    
+                return NextResponse.json({error: methodError}, {status: 405});
         }
     }
     
 
-    async get<T>({email, username}: GetArguments): Promise<Response | GetResponse> {
+    async get<T>({email, username}: GetArguments): Promise<NextResponse> {
         let path = "";
         if (email) {path = `/api/user?email=${email}`}
         else if (username) {path = `api/user?username=${username}`};

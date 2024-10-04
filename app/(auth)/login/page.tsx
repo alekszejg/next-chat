@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+"use client";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -8,19 +8,15 @@ import InputField from "@/app/(auth)/_components/inputField";
 import Button from "@/app/_layoutComponents/button";
 import styling from "@/app/(auth)/twStyling";
 
-export const metadata: Metadata = {
-    title: "Login - NextChat"
-};
 
-export type LoginFormInputs = {email: string, password: string};
-
+type FormInputs = {email: string, password: string};
 
 export default function LoginPage() {
     
     const [isLoading, setIsLoading] = useState(false);
-    const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>({mode: 'onBlur' });
+    const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>({mode: 'onBlur' });
 
-    const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+    const onSubmit: SubmitHandler<FormInputs> = async (data) => {
         const { email, password } = data;
         
         setIsLoading(true); 

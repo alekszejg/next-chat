@@ -2,14 +2,9 @@
 import sanitize from "sanitize-html"
 
 
-export async function sanitizeInput(rawInput: string | string[]) {
-    
-    if (typeof rawInput === "string") return sanitize(rawInput);
-
-    else {
-        const cleanInput = rawInput.map(rawString => sanitize(rawString));
-        return cleanInput;
-    }
+export async function sanitizeInput(rawInput: string[], mode?: string): Promise<(string | undefined)[]> {
+    const cleanInput: (string | undefined)[] = rawInput.map(input => sanitize(input));
+    return cleanInput;
 }
 
 export async function escapeInput(rawInput: string) {

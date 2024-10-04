@@ -11,7 +11,7 @@ const styling = {
         wrapper: "flex flex-row items-center",
         icon: "inline-block w-[2rem] mr-1.5",
         input: "h-[2rem] px-1.5",
-        error: ""
+        error: "text-red-500"
     }
 };
 

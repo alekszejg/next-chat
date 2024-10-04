@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 
-type PostResponse = { success: boolean; error: string};
-type PutResponse = { updated: boolean; error: string };
-type PatchResponse = { patched: boolean; error: string };
-type DeleteResponse = { deleted: boolean; error: string };
+//type PostResponse = { success: boolean; error: string};
+//type PutResponse = { updated: boolean; error: string };
+//type PatchResponse = { patched: boolean; error: string };
+//type DeleteResponse = { deleted: boolean; error: string };
 
-type FetchArguments = {
+type FetchClientParams = {
     method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE", 
     path: string,
     isAuth?: boolean,
@@ -13,7 +13,7 @@ type FetchArguments = {
     body?: Record<string, string>
 }
 
-type GetArguments = {email?: string, username?: string};
+type GetClientParams = {searchBy: "email" | "username", email?: string, username?: string};
 
 
 
@@ -24,8 +24,9 @@ class FetchClient {
         'Content-Type': 'application/json',
     }) {}
 
-    private async fetch({method, path, isAuth = false, headers, body}: FetchArguments): Promise<NextResponse> {
-
+    private async fetch(params: FetchClientParams): Promise<NextResponse> {
+        const { method, path, isAuth = false, headers, body } = params;
+        
         const fullURL = process.env.API_URL + path;
         const allRequestHeaders: Record<string, string> = {...this.defaultHeaders, ...(headers || {})};
         
@@ -54,12 +55,13 @@ class FetchClient {
     }
     
 
-    async get<T>({email, username}: GetArguments): Promise<NextResponse> {
+    async get(params: GetClientParams): Promise<NextResponse> {
+        const { searchBy, email, username } = params;
         const paths = {
-            email: `/api/user?email=${email}`, 
-            username: `api/user?username=${username}`
+            "email": `/api/user?email=${email}`, 
+            "username": `api/user?username=${username}`
         };
-        const response = await this.fetch({method: 'GET', path: email ? paths.email : paths.username});
+        const response = await this.fetch({method: 'GET', path: paths[searchBy]});
         return response;
     }
 

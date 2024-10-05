@@ -1,81 +1,106 @@
 "use server";
 import { NextResponse } from 'next/server';
-import { $fetch } from "@/app/api/user/api.fetchUser";
 import { sanitizeInput } from "@/app/_actions/handleRawInput";
 import { hashPassword } from '@/app/_actions/bcryptHash';
 import type { SignupFormInputs } from "@/app/(auth)/register/page";
 
 
-// statusCodes: {400: maliciousInput, 409: emailExists, 500: internal}
-type SignupErrors = {
-    maliciousInput: {
-        name: {status: boolean, message: "Name contains illegal characters" | ""},
-        email: {status: boolean, message: "Email contains illegal characters" | ""},
-        password: {status: boolean, message: "Password contains illegal characters" | ""},
-    }
-    emailExists: {status: boolean, message: "Email already exists. Specify another email or login instead" | ""}
-    internal: {status: boolean, message: "Internal error has occured. Try again later" | ""}
-    statusCode: undefined | 400 | 409 | 500 
-}
+// HTTP 400: badInput, HTTP 409: emailExists
+const clientErrors = {
+    badInput: {
+        name: {status: false, message: "Name contains illegal characters"},
+        email: {status: false, message: "Email contains illegal characters"},
+        password: {status: false, message: "Password contains illegal characters"},
+    },
+    emailExists: {status: false, message: "Email already exists. Add another one or login instead"},
+};
+
+// HTTP 500 
+const serverError = {message: "Internal error has occured. Try again later"};
 
 
 export default async function handleSignup(rawData: SignupFormInputs) {
     const { name, email, password } = rawData;
-
-    // Determines whether to attempt signup or send errors to client
-    let maliciousInputError = false;
-    let emailExistsError = false;
+    
+    // error states
+    let badInput = false;
+    let emailExists= false;
     let internalError = false;
 
-    // For client to locate error quickly
-    const errorResponse: SignupErrors = {
-        maliciousInput: {
-            name: {status: false, message: ""},
-            email: {status: false, message: ""},
-            password: {status: false, message: ""},
-        },
-        emailExists: {status: false, message: ""},
-        internal: {status: false, message: ""},
-        statusCode: undefined 
-    };
+    // scope change for another try block
+    let safeName: string | undefined;
+    let safeEmail: string | undefined;
+    let safePassword: string | undefined; 
 
-    // Handling malicious input 
-    const [cleanName, cleanEmail, cleanPassword] = await sanitizeInput([name, email, password]);
-    switch (undefined) {
-        case cleanName: 
-            !maliciousInputError && (maliciousInputError = true)
-            errorResponse.maliciousInput.name.status = true;
-            errorResponse.maliciousInput.name.message = "Name contains illegal characters";
-            break;
-        case cleanEmail:
-            !maliciousInputError && (maliciousInputError = true)
-            errorResponse.maliciousInput.email.status = true;
-            errorResponse.maliciousInput.email.message = "Email contains illegal characters";
-            break;
-        case cleanPassword: 
-            !maliciousInputError && (maliciousInputError = true)
-            errorResponse.maliciousInput.password.status = true;
-            errorResponse.maliciousInput.password.message = "Password contains illegal characters";
-            break;
+    try {
+        // Sanitize inputs
+        const [cleanName, cleanEmail, cleanPassword] = await sanitizeInput([name, email, password])
+        if (!cleanName || !cleanEmail || !cleanPassword) {
+            badInput = true;
+            !cleanName && (clientErrors.badInput.name.status = true);
+            !cleanEmail && (clientErrors.badInput.email.status = true);
+            !cleanPassword && (clientErrors.badInput.password.status = true);
+        }
+
+        // scope change for another try block
+        cleanName && (safeName = cleanName);
+        cleanEmail && (safeEmail = cleanEmail);
+        cleanPassword && (safePassword = cleanPassword);
+
+        // Ensure email is unique
+        if (cleanEmail) {
+            const url = process.env.DOMAIN + `/api/user?email=${email}`
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {'Content-Type': 'application/json'},
+            });
+            
+            const data = await response.json();
+
+            switch (response.status) {
+                case 200: 
+                    if (data.userExists) {
+                        emailExists = true;
+                        clientErrors.emailExists.status = true;
+                        return NextResponse.json(clientErrors, {status: 400});
+                    }
+                    break;
+
+                case 400:
+                    console.error("Unexpected error for GET /api/user?email accessed with invalid parameters from handleSignup() action");
+                case 500:
+                    console.error("Internal db related error when fetching GET /api/user?email from handleSignup() action")
+                
+                default:
+                    internalError = true;
+                    return NextResponse.json(clientErrors, {status: 400}); 
+            }
+        }
     }
 
-    // Check email's uniqueness
-    if (cleanEmail) {
-        const getUserResponse = await $fetch.get({searchBy: "email", email: cleanEmail});
-        const data = await getUserResponse.json();
-        
-        if (!getUserResponse.ok) {
-            internalError = true;
+    catch {
+        internalError = true;
+        console.error("Either sanitizeInput() action call or fetching GET /api/user?email failed in handleSignup() action");
+        NextResponse.json(serverError, {status: 500});
+    }
+    
 
-            errorResponse.emailExists.status = true;
-            errorResponse.emailExists.message = "Email already exists. Specify another email or login instead";
-            return "This email already exists";
-        } 
+    if (badInput || emailExists) {
+        return NextResponse.json(clientErrors, {status: 400});
+    } else if (internalError) {
+        return NextResponse.json(serverError, {status: 500});
     }
 
-    // Hash password 
-    if (cleanPassword) {
-        const hashRequest = await hashPassword(cleanPassword)
+    // proceed with hashing password when no more client errors left
+    else {
+        try {
+            const hashedPassword = await hashPassword(safePassword as string);
+        }
+
+        catch {
+            console.error("Failed to reach hashPassword() action or add data to DB");
+            NextResponse.json(serverError, {status: 500});
+        }
     }
 }
 

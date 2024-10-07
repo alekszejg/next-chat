@@ -23,6 +23,7 @@
     "react-hook-form": "^7.53.0",
     "react-hot-toast": "^2.4.1",
     "sanitize-html": "^2.13.0",
+    "server-only": "^0.0.1",
     "tsx": "^4.19.1"
   },
   "devDependencies": {

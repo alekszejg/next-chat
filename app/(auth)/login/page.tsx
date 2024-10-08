@@ -28,11 +28,11 @@ export default function LoginPage() {
         const response  = await signIn('credentials', {callbackUrl: redirectUrl || "/chats", email, password});
         setIsLoading(false);
 
-        if (response?.error){
-            console.error("Login error: ", response.error);
-            toast.error("Login error");
-        } else {
+        if (response) {
             toast.success("Login was successful!");
+        } else {
+            console.error("Login error");
+            toast.error("Login error");
         }
     }
 

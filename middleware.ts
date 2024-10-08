@@ -1,35 +1,22 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from "next/server";
+import { auth, BASE_PATH } from "@/auth";
 
-export default function middleware(req: NextRequest) {
-    const url = req.nextUrl;
-    const pathname = url.pathname;
-    const queryParams = url.searchParams;
 
-    if (pathname === "/api/user") {
-        const emailParam = queryParams.get("email");
-        const usernameParam = queryParams.get("username");
+const PROTECTED_PATHS = ["/chats", "/calls", "/friends", "/settings"];
 
-        if (!emailParam && !usernameParam) {
-            return NextResponse.json({ error: 'Invalid Route' }, { status: 404 });
-        }
+export default auth(req => {
+    const isLogged = req.auth;
+    const reqUrl = new URL(req.url);
+  
+    if (!isLogged && PROTECTED_PATHS.includes(req.nextUrl.pathname)) {
+        return NextResponse.redirect(
+            new URL(`${BASE_PATH}/signin?callbackUrl=${encodeURIComponent(reqUrl.pathname)}`, req.url)
+        )
     }
-
-    return NextResponse.next();
-}
-
-
-export const checkAuth = withAuth({
-    pages: {
-        signIn: '/login', 
-    },
-});
+    return NextResponse.next()
+})
 
 
 export const config = {
-    matcher: [
-        "/register", "/login", "/calls", "/chats", "/friends", "/settings",
-        "/api/user"
-    ]
-};
+    matcher: ['/((?!api|_next/static|_next/image|favicon|fonts|icons|login).*)']
+}

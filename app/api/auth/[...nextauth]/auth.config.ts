@@ -21,7 +21,6 @@ export const authConfig = {
     callbacks: {
         
         async authorized({ auth, request}) {
-            console.log("special middleware triggered")
             const PROTECTED_PATHS = ["/chats", "/calls", "/friends", "/settings"];
             const isLoggedIn = auth?.user;
             if (PROTECTED_PATHS.includes(request.nextUrl.pathname)) {
@@ -101,14 +100,4 @@ export const authConfig = {
     }
 } satisfies NextAuthConfig;
 
-/*
-try {
-if (response.ok && !data.userExists) {
-                        const query = 'INSERT INTO users (name, email, provider, image) VALUES ($1, $2, $3, $4)';
-                        const values = [params.user.name, params.user.email, "google", params.user.image || null]
-                        const response = await addNewUser(query, values as string[])
 
-                        if (response.submitted) return true;
-                        else return false;
-                    } else if (data.userExists) return true;
-*/

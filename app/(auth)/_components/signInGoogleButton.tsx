@@ -12,7 +12,7 @@ export default function SignInWithGoogleButton() {
 
     const handleGoogleSignIn = (event: FormEvent) => {
         event.preventDefault();
-        signIn('google', {callbackUrl: '/'}); 
+        signIn('google'); 
     };
 
     return (

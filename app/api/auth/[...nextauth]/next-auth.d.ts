@@ -9,6 +9,16 @@ declare module "next-auth" {
     email: string
   }
 
+  interface AdapterUser {
+    id: string,
+    name: string | null
+    email: string, 
+    provider: "local" | "google", 
+    is_suspended: boolean, 
+    avatar: string | null
+    username: string | null,
+  }
+
   interface User {
     id: string,
     name: string | null

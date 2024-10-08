@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import ConnectPgsqlPool from '@/postgres';
 import type { PoolClient } from 'pg';
-
+import addNewUser from '@/app/_actions/addNewUser';
 
 export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('Authorization');
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     let client: PoolClient | null = null;
    
     if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== process.env.API_KEY) {
-        console.log("Get route received no authorization")
+        console.error("Get route received no authorization")
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -43,6 +43,31 @@ export async function GET(req: NextRequest) {
         console.error("Failed to perform GET /api/user");
         return NextResponse.json({error: "Internal Error"}, {status: 500});
     } 
+}
+
+export async function POST(req: NextRequest) {
+    const authHeader = req.headers.get('Authorization');
+
+    if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== process.env.API_KEY) {
+        console.error("POST route received no authorization")
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { query, values } = body;
+
+    if (typeof query !== 'string' || !Array.isArray(values)) {
+        console.error("POST route received invalid request body format");
+        return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    }
+
+    const result = await addNewUser(query, values);
+    
+    if (result.submitted) {
+        return NextResponse.json({submitted: true}, { status: 201 });
+    } else {
+        return NextResponse.json({ error: 'Failed to add user' }, { status: 500 });
+    }
 }
 
 

@@ -11,7 +11,7 @@ import Button from "@/app/_layoutComponents/button";
 import SignInWithGoogleButton from "@/app/(auth)/_components/signInGoogleButton";
 import styling from "@/app/(auth)/twStyling";
 import prepSignupData from "@/app/_actions/handleSignup";
-import type { SignupResponse } from "@/app/_actions/handleSignup";
+import { signIn } from "next-auth/react";
 
 export type SignupFormInputs = {name: string, email: string, password: string, reEmail: string};
 
@@ -40,12 +40,25 @@ export default function RegistrationPage() {
         const response = await prepSignupData(formInputs);
         
         if (response.submitted) {
-            toast.success("Registration Successful");
-            reset();
-            setTimeout(() => {
-                router.push("login");
-            }, 1000);
-        } 
+            const performAuth = await signIn('credentials', {
+                redirect: false,
+                email: getValues("email"),
+                password: getValues("password"),
+            });
+
+            if (performAuth) {
+                console.log("Everything is authorized")
+                toast.success("Registration Successful");
+                reset();
+                router.push("/login")
+            } else {
+                toast.error("Failed to authorize");
+                setSubmitErrors(prev => ({
+                    ...prev, internal: "Error occured during registration. Try again later"
+                }));
+            }
+        }
+            
         
         else if (!response.internal && response.badInputExists || response.emailExists) {
             toast.error("Invalid information provided");

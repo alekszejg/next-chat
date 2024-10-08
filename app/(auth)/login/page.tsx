@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Mail, Lock} from "lucide-react";
 import InputField from "@/app/(auth)/_components/inputField";
@@ -12,15 +14,18 @@ import styling from "@/app/(auth)/twStyling";
 type FormInputs = {email: string, password: string};
 
 export default function LoginPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get("callbackUrl");
     
+
     const [isLoading, setIsLoading] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>({mode: 'onBlur' });
 
     const onSubmit: SubmitHandler<FormInputs> = async (data) => {
         const { email, password } = data;
-        
         setIsLoading(true); 
-        const response  = await signIn('credentials', {redirect: false, email, password});
+        const response  = await signIn('credentials', {callbackUrl: redirectUrl || "/chats", email, password});
         setIsLoading(false);
 
         if (response?.error){

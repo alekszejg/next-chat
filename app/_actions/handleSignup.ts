@@ -40,7 +40,12 @@ export default async function handleSignup(rawData: FieldValues): Promise<Signup
     // Verify email uniqueness
     try {
         const url = process.env.DOMAIN + `/api/user?email=${cleanEmail}`
-        const response = await fetch(url, {method: "GET", headers: {'Content-Type': 'application/json'}});
+        const response = await fetch(url, {
+            method: "GET", 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.API_KEY}`
+            }});
         const data = await response.json();
         
         if (response.ok && data.userExists) {

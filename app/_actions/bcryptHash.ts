@@ -1,5 +1,5 @@
 "use server";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // Hash password
 export async function hashPassword(password: string, saltRounds: number = 10) {

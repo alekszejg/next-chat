@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     const result = await addNewUser(query, values);
     
     if (result.submitted) {
-        return NextResponse.json({submitted: true}, { status: 201 });
+        return NextResponse.json({submitted: true, userID: result.userID}, { status: 201 });
     } else {
         return NextResponse.json({ error: 'Failed to add user' }, { status: 500 });
     }

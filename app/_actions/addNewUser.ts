@@ -14,9 +14,10 @@ export default async function addNewUser(query: string, values: string[]) {
             return {submitted: false};
         }
 
-        await client.query(query, values);
+        const result = await client.query(query, values);
+        const userID = result.rows[0].id;
         ConnectPgsqlPool("disconnect", client);
-        return {submitted: true};
+        return {submitted: true, userID: userID};
     }
 
     catch {

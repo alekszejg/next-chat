@@ -22,7 +22,7 @@ export const authConfig = {
     callbacks: {
         
         async authorized({ auth, request}) {
-            console.log("sessions is ", auth)
+            console.log("AUTHORIZED TRIGGERED HERE IS SESSION ", auth)
             const PROTECTED_PATHS = ["/chats", "/calls", "/friends", "/settings"];
             const isLoggedIn = auth?.user;
             if (PROTECTED_PATHS.includes(request.nextUrl.pathname)) {
@@ -35,6 +35,7 @@ export const authConfig = {
         },
 
         async signIn({ user, account, profile }: {user: User, account: Account | null, profile?: Profile}) {
+            console.log("SIGNIN FUNCTION HAS TRIGGERED")
             if (account?.provider === "google") {
                 
                 console.log("google user: ", user);
@@ -58,7 +59,7 @@ export const authConfig = {
                     
                     if (response.ok && !data.userExists) {
                         const url =  process.env.DOMAIN + "/api/user";
-                        const query = 'INSERT INTO users (name, email, provider, image) VALUES ($1, $2, $3, $4)';
+                        const query = 'INSERT INTO users (name, email, provider, image) VALUES ($1, $2, $3, $4) RETURNING id';
                         const values = [user.name, user.email, "google", user.image || null]
 
                         const insertResponse = await fetch(url, {
@@ -71,7 +72,10 @@ export const authConfig = {
                         })
 
                         const insertData = await insertResponse.json();
-                        if (insertData.submitted) return true;
+                        if (insertData.submitted) {
+                            user.id = insertData.userID; // change google ID to ID in my db
+                            return true;
+                        }
                         else {
                             console.error("Internal error during data insertion from signIn with google provider")
                             return false;
@@ -90,26 +94,39 @@ export const authConfig = {
             return true;
         },
 
-        async jwt({ token, user, account }: {token: JWT, user: User, account: Account | null}) {
+        async jwt({ token, user, account }: {token: JWT, user: User, account: Account | null}) {  
+            // initial signup
             if (account && user) {
-                token.access_token = account.access_token;
-                token.refresh_token = account.refresh_token;
-                token.accessTokenExpires = Date.now() + (account.expires_in ? account.expires_in * 1000 : 3600 * 1000)
+                token.provider = user.provider;
+
+                if (account.provider === "google") {
+                    token.access_token = account.access_token;
+                    token.refresh_token = account.refresh_token;
+                    token.accessTokenExpires = account.expires_in ? Date.now() + account.expires_in * 1000 : Date.now() + 3600 * 1000;
+                }
+                console.log("FIRST JWT SIGNUP, Token is: ", token)
                 return token;
             }
-                
-            if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
-                return token
+
+            if (token.accessTokenExpires) {
+                console.log("JWT SAYS TOKEN HAS ACCESSTOKENEXPIRES???")
+                if (Date.now() < token.accessTokenExpires) {
+                    return token;
+                }
+
+                const newToken = await refreshAccessToken(token);
+                return {...newToken} 
             }
-        
-            const newToken = await refreshAccessToken(token);
-            return {...newToken}
+
+            return token;
         },
+
 
         async session({ session, token, user }: {session: Session, token: JWT, user: User}) {
             if (token) {
-                session.access_token = token.access_token;
-                session.error = token.error;
+                session.id = token.sub;
+                session.access_token = token.access_token || null;
+                session.error = token.error || null;
             }
             console.log("SESSION IS ", session)
             console.log("TOKEN IS ", token)
@@ -118,4 +135,35 @@ export const authConfig = {
     }
 } satisfies NextAuthConfig;
 
+/*
+async jwt({ token, user, account }: {token: JWT, user: User, account: Account | null}) {
+            console.log("JWT TRIGGERED. Token is: ", token)
+            console.log("JWT TRIGGERED. User is: ", user)
+            if (!user || !account || account.provider === "credentials") {
+                return token;
+            }
+            
+            else if (account.provider === "google" && user) {
+                
+                if (!token.accessTokenExpires) {
+                    return {
+                        ...token,
+                        access_token: account.access_token,
+                        refresh_token: account.refresh_token,
+                        accessTokenExpires: account.expires_in ? Date.now() + account.expires_in * 1000 : Date.now() + 3600 * 1000
+                    }
+                }
 
+                if (Date.now() < token.accessTokenExpires) {
+                    return token;
+                }
+
+            
+                const newToken = await refreshAccessToken(token);
+                return {...newToken} 
+            }
+
+            return token;
+        },
+
+*/

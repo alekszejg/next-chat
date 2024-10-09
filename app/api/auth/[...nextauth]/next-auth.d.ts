@@ -7,22 +7,21 @@ declare module "next-auth" {
     id: string, 
     name: string,
     email: string,
-    image: string,
+    image: string | null,
     provider: "credentials" | "google",
-    created_at: string,
   }
 
   interface Session {
     id: string,
-    access_token?: string,
-    error?: string
+    access_token: string | null,
+    error: string | null
   }
 }
 
 
 declare module "next-auth/jwt" {
   interface JWT extends User {
-    token: string,
+    sub: string,
     access_token?: string,
     refresh_token?: string,
     accessTokenExpires?: number,

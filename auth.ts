@@ -27,6 +27,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
             
             async authorize(credentials): Promise<User | null> {  
+              ("AUTHORIZE FUNCTION GOT TRIGGERED")
               if (!credentials?.email || !credentials?.password) return null;
               
               const url = process.env.DOMAIN + `/api/user?email=${credentials.email}`
@@ -47,11 +48,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 id: data.user.id, 
                 name: data.user.name,
                 email: data.user.email,
-                image: data.user.image,
+                image: null,
                 provider: "credentials",
-                created_at: data.user.created_at,
               }
-              
+
+              console.log("USERDATA FROM AUTHORIZE IS: ", userData)
               return userData;
             }
         })

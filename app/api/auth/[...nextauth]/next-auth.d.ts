@@ -1,44 +1,31 @@
-import { Session } from "next-auth";
+import { User, Account, Profile, DefaultSession } from "next-auth";
 import { JWT } from "next-auth/jwt";
-
 
 declare module "next-auth" {
   
+  interface User {
+    id: string, 
+    name: string,
+    email: string,
+    image: string,
+    provider: "credentials" | "google",
+    created_at: string,
+  }
+
   interface Session {
     id: string,
-    email: string
+    access_token?: string,
+    error?: string
   }
-
-  interface AdapterUser {
-    id: string,
-    name: string | null
-    email: string, 
-    provider: "local" | "google", 
-    is_suspended: boolean, 
-    avatar: string | null
-    username: string | null,
-  }
-
-  interface User {
-    id: string,
-    name: string | null
-    email: string, 
-    provider: "local" | "google", 
-    is_suspended: boolean, 
-    avatar: string | null
-    username: string | null,
-  }
-
-  type SignInParams = {
-    user: User | AdapterUser, 
-    account: Account | null, 
-    profile?: Profile | undefined,
-  }
-
 }
+
 
 declare module "next-auth/jwt" {
   interface JWT extends User {
-    token: string;
+    token: string,
+    access_token?: string,
+    refresh_token?: string,
+    accessTokenExpires?: number,
+    error?: string
   }
 }

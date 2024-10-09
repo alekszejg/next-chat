@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import type { User, Session, NextAuthConfig, SignInParams } from "next-auth";
+import type { User, Account, Profile, Session, NextAuthConfig} from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import addNewUser from "@/app/_actions/addNewUser";
+import refreshAccessToken from "@/app/_actions/refreshAccessToken";
+
 
 export const BASE_PATH = "/api/auth"; 
 
 
 export const authConfig = {
-    providers: [], // Add inside NextAuth(), here it's created to satisfy NextAuthConfig 
+    providers: [], // Add later, here to satisfy NextAuthConfig 
     basePath: BASE_PATH,
     session: {
         strategy: 'jwt' as const,
@@ -21,6 +22,7 @@ export const authConfig = {
     callbacks: {
         
         async authorized({ auth, request}) {
+            console.log("sessions is ", auth)
             const PROTECTED_PATHS = ["/chats", "/calls", "/friends", "/settings"];
             const isLoggedIn = auth?.user;
             if (PROTECTED_PATHS.includes(request.nextUrl.pathname)) {
@@ -32,17 +34,19 @@ export const authConfig = {
             return true;
         },
 
-        async signIn(params: SignInParams) {
-            if (params.account?.provider === "credentials") {
-                console.log("SIGNIN TRIGGERED for local provider")
-                return true;
-            }
-
-            else if (params.account?.provider === "google") {
-                if (!params.user.name || !params.user.email) return false;
-            
+        async signIn({ user, account, profile }: {user: User, account: Account | null, profile?: Profile}) {
+            if (account?.provider === "google") {
+                
+                console.log("google user: ", user);
+                console.log("ggoogle account: ", account)
+                console.log("google profile: ", profile)
+                
+                if (!user.name || !user.email) return false;
+                user.provider = "google";
+                
+                
                 try {
-                    const url = process.env.DOMAIN + `/api/user?email=${params.user.email}`
+                    const url = process.env.DOMAIN + `/api/user?email=${user.email}`
                     const response = await fetch(url, {
                         method: "GET", 
                         headers: {
@@ -55,7 +59,7 @@ export const authConfig = {
                     if (response.ok && !data.userExists) {
                         const url =  process.env.DOMAIN + "/api/user";
                         const query = 'INSERT INTO users (name, email, provider, image) VALUES ($1, $2, $3, $4)';
-                        const values = [params.user.name, params.user.email, "google", params.profile.picture || null]
+                        const values = [user.name, user.email, "google", user.image || null]
 
                         const insertResponse = await fetch(url, {
                             method: 'POST',
@@ -86,15 +90,29 @@ export const authConfig = {
             return true;
         },
 
-        async jwt({ token, user }: {token: JWT, user: User}) {
-            return {...user, ...token};
+        async jwt({ token, user, account }: {token: JWT, user: User, account: Account | null}) {
+            if (account && user) {
+                token.access_token = account.access_token;
+                token.refresh_token = account.refresh_token;
+                token.accessTokenExpires = Date.now() + (account.expires_in ? account.expires_in * 1000 : 3600 * 1000)
+                return token;
+            }
+                
+            if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
+                return token
+            }
+        
+            const newToken = await refreshAccessToken(token);
+            return {...newToken}
         },
 
-        async session({ session, token}: {session: Session, token: JWT}) {
-            if (session) {
-                session.id = token.id as string;;
-                session.email = token.email as string;; 
+        async session({ session, token, user }: {session: Session, token: JWT, user: User}) {
+            if (token) {
+                session.access_token = token.access_token;
+                session.error = token.error;
             }
+            console.log("SESSION IS ", session)
+            console.log("TOKEN IS ", token)
             return session;
         },
     }

@@ -9,7 +9,7 @@ export default async function ChatList() {
     let chatList: Chat[] | [] = [];
    
     const styling = {
-        chat: "h-12 border-b-2 border-b-borderWhite",
+        chat: "flex h-12 border-b-2 border-b-borderWhite",
         noChatsFound: "mt-5 text-center opacity-60",
         internalError: "mt-5 text-center text-sm opacity-60"
     }
@@ -45,7 +45,7 @@ export default async function ChatList() {
             
             {!internalError && chatList.length > 0 && 
             chatList.map(chat => (
-                <ChatPreview key={chat.id} styling={styling.chat} chatID={`ChatID: ${chat.id}`} />
+                <ChatPreview key={chat.id} chatID={chat.id} session={session} styling={styling.chat} text={`ChatID: ${chat.id}`} />  
             ))}
             
             {internalError && 

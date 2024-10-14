@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
         client = await ConnectPgsqlPool("connect");
         
         if (!client) {
-            console.error("Returned PoolClient is null at GET /api/user");
+            console.error("Returned PoolClient is null at GET /api/chats");
             return NextResponse.json({error: "Internal Error"}, {status: 500});
         }
 
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
             }
         } 
         
-        const query = 'SELECT c.* FROM chats c JOIN chat_participants cp ON c.id = cp.chat_id WHERE cp.user_id = $1';
+        const query = 'SELECT c.* FROM chats c JOIN chat_participants cp ON c.id = cp.chat_id WHERE cp.user_id = $1 AND cp.chat_visible = true';
         const response = await client.query(query, [userID]);
         ConnectPgsqlPool("disconnect", client);
         
@@ -44,6 +44,45 @@ export async function GET(req: NextRequest) {
         } else {
             return NextResponse.json({chatsExist: true, chats: response.rows}, {status: 200});
         }  
+    } 
+
+    catch (error) {
+        client && ConnectPgsqlPool("disconnect", client);
+        console.error("Failed to perform GET /api/chats");
+        return NextResponse.json({error: "Internal Error"}, {status: 500});
+    } 
+}
+
+export async function PATCH(req: NextRequest) {
+    console.log("API RECEIVED REQUEST")
+    //const authHeader = req.headers.get('Authorization');
+    const userID = req.headers.get('userID');
+    const searchParams = req.nextUrl.searchParams;
+    const chatID = searchParams.get('chatID');
+
+    if (!userID) {
+        console.error("Get route received no authorization")
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    let client: PoolClient | null = null;
+
+    try {
+        client = await ConnectPgsqlPool("connect");
+        
+        if (!client) {
+            console.error("Returned PoolClient is null at PATCH /api/chats");
+            return NextResponse.json({error: "Internal Error"}, {status: 500});
+        }
+
+        if (chatID && userID) {
+            const query = 'UPDATE chat_participants SET chat_visible = false WHERE user_id = $1 AND chat_id = $2;';
+            await client.query(query, [userID, chatID]);
+            ConnectPgsqlPool("disconnect", client);
+            return NextResponse.json({chatHidden: true}, {status: 200});
+        } else {
+            return NextResponse.json({chatHidden: false}, {status: 500});
+        }
     } 
 
     catch (error) {

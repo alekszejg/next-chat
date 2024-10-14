@@ -19,7 +19,8 @@ export interface Chat {
     id: string,
     creator_id: User, // ref users table primary key
     created_at: string,
-    title: string | null // >2 participants
+    title: string | null, // >2 participants,
+    participant_count: string
 }
 
 // Anyone can create || Anyone local can find || Admin(s) can edit and delete

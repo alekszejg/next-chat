@@ -4,7 +4,7 @@ import ChatsMenu from "@/app/chats/chatsMenu";
 
 export default async function ChatsPage() {
     const session: Session | null = await auth();
-    
+
     const styling = {
         wrapper: "flex flex-col"
     }

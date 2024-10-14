@@ -1,5 +1,10 @@
 import { User } from "next-auth";
 
+export interface dbUser extends User {
+    is_suspended: boolean, 
+}
+
+
 // Anyone local can create || Anyone local can search || Owner can delete
 export interface Message {
     id: number,

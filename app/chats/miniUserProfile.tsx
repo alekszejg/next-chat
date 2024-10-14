@@ -12,7 +12,7 @@ export default function MiniUserProfile({ session }: {session: Session | null}) 
 
     return (
         <>
-        <Image src={image || "/images/defaultUserImage.avif"} className={styling.image} width={40} height={40} alt="Your profile picture" />
+        <Image src={image as string} className={styling.image} width={40} height={40} alt="Your profile picture" />
          <h3 className={styling.name}>{name}</h3>
         </>
     );

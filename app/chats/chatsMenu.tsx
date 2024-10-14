@@ -2,7 +2,7 @@ import type { Session } from "next-auth";
 import MiniUserProfile from "@/app/chats/miniUserProfile";
 import InputField from "@/app/(auth)/_components/inputField";
 import { Search } from "lucide-react";
-
+import ChatList from "./chatList";
 
 export default function ChatsMenu({ session }: {session: Session | null}) {
     
@@ -23,6 +23,7 @@ export default function ChatsMenu({ session }: {session: Session | null}) {
                 <MiniUserProfile session={session} />
             </div>
             <InputField placeholder="Search for chat, people or groups" Icon={Search} styling={styling.searchBar} />
+            <ChatList />
         </div>
     );
 }

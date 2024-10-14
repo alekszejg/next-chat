@@ -22,7 +22,6 @@ export const authConfig = {
     callbacks: {
         
         async authorized({ auth, request}) {
-            console.log("AUTHORIZED TRIGGERED HERE IS SESSION ", auth)
             const PROTECTED_PATHS = ["/chats", "/calls", "/friends", "/settings"];
             const isLoggedIn = auth?.user;
             if (PROTECTED_PATHS.includes(request.nextUrl.pathname)) {
@@ -35,12 +34,7 @@ export const authConfig = {
         },
 
         async signIn({ user, account, profile }: {user: User, account: Account | null, profile?: Profile}) {
-            console.log("SIGNIN FUNCTION HAS TRIGGERED")
             if (account?.provider === "google") {
-                
-                console.log("google user: ", user);
-                console.log("ggoogle account: ", account)
-                console.log("google profile: ", profile)
                 
                 if (!user.name || !user.email) return false;
                 user.provider = "google";
@@ -104,12 +98,10 @@ export const authConfig = {
                     token.refresh_token = account.refresh_token;
                     token.accessTokenExpires = account.expires_in ? Date.now() + account.expires_in * 1000 : Date.now() + 3600 * 1000;
                 }
-                console.log("FIRST JWT SIGNUP, Token is: ", token)
                 return token;
             }
 
             if (token.accessTokenExpires) {
-                console.log("JWT SAYS TOKEN HAS ACCESSTOKENEXPIRES???")
                 if (Date.now() < token.accessTokenExpires) {
                     return token;
                 }
@@ -128,42 +120,9 @@ export const authConfig = {
                 session.access_token = token.access_token || null;
                 session.error = token.error || null;
             }
-            console.log("SESSION IS ", session)
-            console.log("TOKEN IS ", token)
             return session;
         },
     }
 } satisfies NextAuthConfig;
 
-/*
-async jwt({ token, user, account }: {token: JWT, user: User, account: Account | null}) {
-            console.log("JWT TRIGGERED. Token is: ", token)
-            console.log("JWT TRIGGERED. User is: ", user)
-            if (!user || !account || account.provider === "credentials") {
-                return token;
-            }
-            
-            else if (account.provider === "google" && user) {
-                
-                if (!token.accessTokenExpires) {
-                    return {
-                        ...token,
-                        access_token: account.access_token,
-                        refresh_token: account.refresh_token,
-                        accessTokenExpires: account.expires_in ? Date.now() + account.expires_in * 1000 : Date.now() + 3600 * 1000
-                    }
-                }
 
-                if (Date.now() < token.accessTokenExpires) {
-                    return token;
-                }
-
-            
-                const newToken = await refreshAccessToken(token);
-                return {...newToken} 
-            }
-
-            return token;
-        },
-
-*/

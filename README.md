@@ -1,5 +1,14 @@
 *Inpired by this video from Russian creator: https://youtu.be/BwcznghxxHk?si=dKYFBOzIPwtE7SWY*
 
+**CURRENT TASKS**
+(!) Inside chat.types include column names and data types for each table, make it clear what values are necessary/optional for successful entry
+
+Each user (careful brainstorming):
+- Needs to have a list of contacts (ability to add/remove them)
+- Can only have single 1 on 1 chat with other user (don't create new chat if old one exists)
+- Adding/modifying chat participants needs to include updates to "participant_count" of "chats" table, which is 1 by default
+- After all above is done proceed to messages table, connect it to chat_id and filter results by most recent creation date (to allow join with chat table and display preview of last message)
+
 **AIM AND MOTIVATION**
 1) Get closer to building more real-life related projects and services
 2) Train muscle memory and overall speed of completing React/NextJS projects. Knowing the design beforehand saves a lot of time and headache, so coding is the area of focus

@@ -28,7 +28,8 @@ export interface ChatParticipants {
     // PRIMARY KEY (chat_id, user_id)
     chat_id: number, // ref chats table primary key 
     user_id: User, // ref users table primary key 
-    is_admin: boolean 
+    is_admin: boolean,
+    chat_visible: boolean // default true 
 }
 
 export interface ChatList {

@@ -31,17 +31,25 @@ def add_users():
 def add_chats():
     query = "INSERT INTO chats (creator_id) VALUES (%s)"
     for _ in range(20):
-        creator_id = randint(26, 45)
+        creator_id = randint(47, 60)
         cursor.execute(query, (creator_id,))
     connection.commit()
 
 
 def add_chat_participant():
     query = "INSERT INTO chat_participants (chat_id, user_id) VALUES (%s, %s)"
-    cursor.execute(query, (4, 34))
+    cursor.execute(query, (48, 51))
+    connection.commit()
+
+# just add both pairs for quicker test
+def friendship_request(user_id, contact_id): 
+    query = "INSERT INTO contacts (user_id, contact_id) VALUES (%s, %s)"
+    cursor.execute(query, (user_id, contact_id))
+    cursor.execute(query, (contact_id, user_id))
     connection.commit()
 
 
+friendship_request(47, 68)
 cursor.close()
 connection.close()
 print("Data was added to db. Connection closed")

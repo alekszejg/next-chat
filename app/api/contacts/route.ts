@@ -10,18 +10,33 @@ export async function GET(req: NextRequest) {
     if (!userID || !status) return NextResponse.json({error: "userID or status don't exist"}, {status: 401});
     
     let client: PoolClient | null = null;
+    let query: string = "";
+    
     try {
         client = await ConnectPgsqlPool("connect");
-        const query = `SELECT u.id, u.name, u.email, u.image FROM users AS u
-        JOIN contacts AS c ON (c.user_id = $1 AND c.contact_id = u.id AND status = '${status}');`;
-
         if (!client) return NextResponse.json({error: "Connection to DB failed"}, {status: 500});
+
+        switch (status) {
+            case "pending":
+                query = `SELECT u.id, u.name, u.email, u.image FROM users AS u
+                JOIN contacts AS c ON (c.user_id = u.id AND c.contact_id = $1 AND status = 'pending');`;
+                break;
+            case "friends":
+                query = `SELECT u.id, u.name, u.email, u.image FROM users AS u
+                JOIN contacts AS c ON (c.user_id = $1 AND c.contact_id = u.id AND status = 'friends');`;
+                break;
+            default:
+                return NextResponse.json({error: "Incorrect friendship status"}, {status: 400});
+        }
+
         const response = await client.query(query, [userID]);
         ConnectPgsqlPool("disconnect", client);
         if (response.rows.length === 0) return NextResponse.json({success: false}, {status: 200});
-        return NextResponse.json({success: true, matches: response.rows}, {status: 200})
+        return NextResponse.json({success: true, matches: response.rows}, {status: 200});
+
+
     } catch {
         if (client) ConnectPgsqlPool("disconnect", client);
         return NextResponse.json({error: "Either db connection or query failed"}, {status: 500});
-    } 
+    }
 };

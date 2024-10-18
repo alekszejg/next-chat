@@ -42,14 +42,14 @@ def add_chat_participant():
     connection.commit()
 
 # just add both pairs for quicker test
-def friendship_request(user_id, contact_id): 
-    query = "INSERT INTO contacts (user_id, contact_id) VALUES (%s, %s)"
-    cursor.execute(query, (user_id, contact_id))
-    cursor.execute(query, (contact_id, user_id))
+def friendship_request(user_id, contact_id, status): 
+    query = "INSERT INTO contacts (user_id, contact_id, status) VALUES (%s, %s, %s)"
+    cursor.execute(query, (user_id, contact_id, status))
+    cursor.execute(query, (contact_id, user_id, status))
     connection.commit()
 
 
-friendship_request(47, 68)
+friendship_request(47, 68, "friends")
 cursor.close()
 connection.close()
 print("Data was added to db. Connection closed")

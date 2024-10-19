@@ -31,8 +31,8 @@ export async function GET(req: NextRequest) {
 
         const response = await client.query(query, [userID]);
         ConnectPgsqlPool("disconnect", client);
-        if (response.rows.length === 0) return NextResponse.json({success: false}, {status: 200});
-        return NextResponse.json({success: true, matches: response.rows}, {status: 200});
+        if (response.rows.length === 0) return NextResponse.json({match: false}, {status: 200});
+        return NextResponse.json({match: true, matches: response.rows}, {status: 200});
 
 
     } catch {

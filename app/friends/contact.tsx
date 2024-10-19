@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { XCircle, MessageSquareMore, Phone} from "lucide-react";
 
-export default function Contact(props: {image: string, name: string}) {
+export default function Contact(props: {status: "pending" | "friend", image: string, name: string}) {
     const styling = {
         wrapper: "flex flex-col items-center py-3 border-2 rounded-xl border-borderWhite relative",
         removeFriendButton: "w-[1.4rem] absolute left-[6.5rem] bottom-[7rem] opacity-60 hover:scale-110 active:scale-110",

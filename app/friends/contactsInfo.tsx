@@ -1,7 +1,7 @@
 import { Session } from "next-auth";
 import Contact from "@/app/friends/contact";
 
-type Contact = {id: string, name: string, email: string, image: string};
+export type Contact = {id: string, name: string, email: string, image: string};
 
 
 export default async function ContactsInfo({ session }: {session: Session | null}) {

@@ -1,10 +1,8 @@
 import type { Session } from "next-auth";
-import { auth } from "@/auth";
 import type { Chat } from "./chat.types";
 import ChatPreview from "./chatPreview";
 
-export default async function ChatList() {
-    const session: Session | null = await auth();
+export default async function ChatList({ session }: {session: Session | null}) {
     let internalError = false;
     let chatList: Chat[] | [] = [];
    
@@ -15,13 +13,11 @@ export default async function ChatList() {
     }
 
     try {
-        const url =  process.env.DOMAIN + "/api/chats";
+        const url =  `http://localhost:3000/api/chats?userID=${session?.id || ""}`;
         const response = await fetch(url, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${process.env.API_KEY}`, 
-                'Content-Type': 'application/json',
-                'userID': session ? session.id : ""   
+                'Content-Type': 'application/json',  
             } 
         });
 

@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 import type { Contact } from "@/app/friends/contactsInfo";
 import ChatContact from "@/app/chats/chatContact";
 
+type ContactListProps = {
+    session: Session | null,
+    passChatID: (chatID: string) => void
+}
 
-export default function ContactList({ session }: {session: Session | null}) {
+
+export default function ContactList(props: ContactListProps) {
     const styling = {
         createGroupChatButton: "mt-3 ml-3",
         contactWrapper: "flex items-center gap-x-3 h-14 pl-3 border-b-2 border-b-borderWhite",
@@ -19,7 +24,7 @@ export default function ContactList({ session }: {session: Session | null}) {
     useEffect(() => {
         const fetchContacts = async () => {
             try {
-                const url = `http://localhost:3000/api/contacts?user=${session?.id}&status=friends`;
+                const url = `http://localhost:3000/api/contacts?user=${props.session?.id}&status=friends`;
                 const response = await fetch(url, {
                     method: "GET",
                     headers: {
@@ -38,7 +43,7 @@ export default function ContactList({ session }: {session: Session | null}) {
 
             } catch {
                 internalError = true;
-                console.error(`Failed to fetch contacts for user ${session?.id}`)
+                console.error(`Failed to fetch contacts for user ${props.session?.id}`)
             }
         }
         fetchContacts();
@@ -67,7 +72,7 @@ export default function ContactList({ session }: {session: Session | null}) {
             <>
             <button className={styling.createGroupChatButton}>Create a groupchat ({selectedUsers.length} selected)</button>
             {contactList.map(contact => (
-                <ChatContact key={contact.id} info={contact} wrapperStyling={styling.contactWrapper} handleUserSelection={handleUserSelection}/>
+                <ChatContact key={contact.id} session={props.session} info={contact} wrapperStyling={styling.contactWrapper} handleUserSelection={handleUserSelection} passChatID={props.passChatID}/>
             ))}
             </>
         }

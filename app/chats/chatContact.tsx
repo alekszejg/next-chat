@@ -2,20 +2,45 @@
 import Image from "next/image"
 import { useState } from "react";
 import { Circle, CircleCheck, MessageCircle } from "lucide-react";
+import type { Session } from "next-auth";
 import type { Contact } from "@/app/friends/contactsInfo";
 
 
-export default function ChatContact(props: {info: Contact, wrapperStyling: string, handleUserSelection: (mode: "add" | "remove", userID: string) => void;}) {
+type ChatContactProps = {
+    session: Session | null, 
+    info: Contact, 
+    wrapperStyling: string, 
+    handleUserSelection: (mode: "add" | "remove", userID: string) => void;
+    passChatID: (chatID: string) => void;
+}
+
+
+export default function ChatContact(props: ChatContactProps) {
+    const { session, handleUserSelection, wrapperStyling } = props;
     const { id, name, email, image } = props.info;
     
     const [selected, setSelected] = useState(false);
     const handleSelect = () => {
-        if (!selected) {
-            props.handleUserSelection("add", id);
-        } else {
-            props.handleUserSelection("remove", id);
-        }
+        selected ? handleUserSelection("remove", id) : handleUserSelection("add", id);
         setSelected(!selected)
+    };
+
+    const handleChatCreation = async () => {
+        console.log("triggered chat creation")
+        const url = "http://localhost:3000/api/chats";
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'userID': session ? session.id : "",
+                'contactID': id,
+                'chatType': "DM",
+            })
+        });
+        const data = await response.json();
+        console.log("received chatid ", data.chatID);
     };
 
     const styling = {
@@ -29,25 +54,18 @@ export default function ChatContact(props: {info: Contact, wrapperStyling: strin
     };
 
     return (
-        <div className={props.wrapperStyling}>
+        <div className={wrapperStyling}>
             <Image className={styling.image} src={image} width={30} height={30} alt={name} />
             <h3 className={styling.name}>{name}</h3>
             
             <div className={styling.buttonWrapper}>
                 
-                {!selected && 
-                    <button className={styling.selectButton} onClick={handleSelect}>
-                        <Circle className={styling.selectIcon} />
-                    </button>
-                }
+                <button className={styling.selectButton} onClick={handleSelect}>
+                    {!selected && <Circle className={styling.selectIcon} />}
+                    {selected && <CircleCheck className={styling.selectIcon} />}
+                </button>
 
-                {selected && 
-                    <button className={styling.selectButton} onClick={handleSelect}>
-                        <CircleCheck className={styling.selectIcon} />
-                    </button>
-                }
-
-                <button className={styling.sendMessageButton}>
+                <button className={styling.sendMessageButton} onClick={handleChatCreation}>
                     <MessageCircle className={styling.sendMessageIcon} />
                 </button>
             </div>

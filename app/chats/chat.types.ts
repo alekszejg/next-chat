@@ -9,9 +9,9 @@ export interface dbUser extends User {
 export interface Message {
     id: number,
     content: string,
-    creator_id: User, // ref users table primary key
+    sender: string, // ref users table primary key
     created_at: string,
-    chat_id: Chat // chat contains many Message[], ref chats table primary key
+    chat_id: string // ref chats table primary key
 }
 
 // Anyone can create || Anyone local can find || Admin(s) can edit and delete

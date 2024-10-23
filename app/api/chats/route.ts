@@ -25,22 +25,24 @@ export async function GET(req: NextRequest) {
         }
 
         if (chatID) {
+            const usersResponse = await client.query('SELECT id, name, email, image FROM users u JOIN chat_participants cp ON u.id = cp.user_id WHERE cp.chat_id = $1', [chatID]);
             const chatResponse = await client.query('SELECT * FROM chats WHERE id = $1', [chatID]);
             const messagesResponse = await client.query("SELECT * FROM messages WHERE chat_id = $1", [chatID]);
             ConnectPgsqlPool("disconnect", client);
             return NextResponse.json({
+                users: usersResponse.rows,
                 chat: chatResponse.rows[0],
                 messages: messagesResponse.rows
             }, {status: 200});
         } 
 
         else if (!chatID) {
-            const query = 'SELECT c.* FROM chats c JOIN chat_participants cp ON c.id = cp.chat_id WHERE cp.user_id = $1 AND cp.chat_visible = true';
-            const response = await client.query(query, [userID]);
+            const chatQuery = 'SELECT c.* FROM chats c JOIN chat_participants cp ON c.id = cp.chat_id WHERE cp.user_id = $1 AND cp.chat_visible = true';
+            const chatResponse = await client.query(chatQuery, [userID]);
             ConnectPgsqlPool("disconnect", client);
             
-            if (response.rows.length > 0) {
-                return NextResponse.json({chatsExist: true, chats: response.rows}, {status: 200});
+            if (chatResponse.rows.length > 0) {
+                return NextResponse.json({chatsExist: true, chats: chatResponse.rows}, {status: 200});
             }
             return NextResponse.json({chatsExist: false}, {status: 200});
         }

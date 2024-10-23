@@ -7,6 +7,7 @@ import Chat from "@/app/chats/chat";
 
 export default function ChatClientWrapper ({ session, ChatList }: {session: Session | null, ChatList: React.ReactNode}) {
     const [chatID, setChatID] = useState<string | null>(null);
+    console.log("chatID is ", chatID);
     const passChatID = (chatID: string) => setChatID(chatID);
     
     return (

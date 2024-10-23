@@ -40,7 +40,9 @@ export default function ChatContact(props: ChatContactProps) {
             })
         });
         const data = await response.json();
-        console.log("received chatid ", data.chatID);
+        if (response.ok) {
+            props.passChatID(data.chatID);
+        }
     };
 
     const styling = {

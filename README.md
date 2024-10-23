@@ -1,13 +1,13 @@
 *Inpired by this video from Russian creator: https://youtu.be/BwcznghxxHk?si=dKYFBOzIPwtE7SWY*
 
 **CURRENT TASKS**
-(!) Inside chat.types include column names and data types for each table, make it clear what values are necessary/optional for successful entry
-
-Each user (careful brainstorming):
-- Needs to have a list of contacts (ability to add/remove them)
-- Can only have single 1 on 1 chat with other user (don't create new chat if old one exists)
-- Adding/modifying chat participants needs to include updates to "participant_count" of "chats" table, which is 1 by default
-- After all above is done proceed to messages table, connect it to chat_id and filter results by most recent creation date (to allow join with chat table and display preview of last message)
+1) Chat component needs an interface 
+2) Chat component's interface needs to communicate with sockets and sockets need to deliver data to DB
+3) Take break (work on Portfolio Website)
+4) Return from break, start /api/messages (ability for user to edit/delete them) 
+5) Review API logic, add proper authentication suitable for client-side (read more on that)
+6) Proceed to more complex functionality, like online status, group chats, calls, settings, friend list customization (I made a good foundation, most of these goals just involve requesting and receiving 
+correct data, along with finding proper solutions, there are many yet some are garbage)
 
 **AIM AND MOTIVATION**
 1) Get closer to building more real-life related projects and services

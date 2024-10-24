@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import next from "next";
+import ConnectPgsqlPool from "./postgres.js";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -22,11 +23,27 @@ const startServer = async () => {
           console.log(`Socket disconnected due to: ${reason}`);
         });
   
-        // Add more event handlers as needed
+        socket.on("newMessage", async (message) => {
+          let client = null;
+          try {
+            client = await ConnectPgsqlPool("connect");
+            if (!client) {
+              console.error("Returned PoolClient is null at socket event newMessage");
+              socket.emit("messageError", { error: "Couldn't connect to database" });
+            } else {
+              const query = "INSERT INTO messages (sender, content, chat_id) VALUES ($1, $2, $3)";
+              await client.query(query, [message.senderID, message.content, message.chatID]);
+              ConnectPgsqlPool("disconnect", client);
+              io.emit('message', message);
+            }
+          } catch {
+            socket.emit("messageError", { error: "Failed to save message." });
+          }
+        })
       });
   
-      httpServer.listen(port, (err) => {
-        if (err) throw err;
+      httpServer.listen(port, (error) => {
+        if (error) throw error;
         console.log(`> Ready on http://${hostname}:${port}`);
       });
   

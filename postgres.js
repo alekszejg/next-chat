@@ -1,10 +1,9 @@
-import { Pool } from 'pg';
-import type { PoolClient } from 'pg';
+import pg from 'pg'
 import dotenv from 'dotenv';
 dotenv.config();
 
-
-export let pool = new Pool({
+const { Pool } = pg;
+export const pool = new Pool({
   user: process.env.USER,
   host: process.env.HOST,
   database: process.env.DATABASE,
@@ -13,7 +12,7 @@ export let pool = new Pool({
 });
 
 
-export default async function ConnectPgsqlPool(action: "connect" | "disconnect", client: PoolClient | null = null, ) {
+export default async function ConnectPgsqlPool(action, client = null, ) {
     
   if (action === "connect") {
       try {
